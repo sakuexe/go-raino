@@ -39,13 +39,19 @@ func createMessage(session *discordgo.Session, message *discordgo.MessageCreate)
 }
 
 func main() {
+  // invite raino to the server: https://discord.com/oauth2/authorize?client_id=1241964425317978193&permissions=40667002567744&scope=bot
 	discord, err := discordgo.New("Bot " + GetDotenv("DISCORD_TOKEN"))
 	if err != nil {
 		fmt.Println("Error creating Discord session: ", err)
 		return
 	}
 
-  // Open the connection
+	// Show that the app was started successfully
+	discord.AddHandler(func(session *discordgo.Session, ready *discordgo.Ready) {
+		fmt.Printf("Raino is running as: %v#%v \n", session.State.User.Username, session.State.User.Discriminator)
+	})
+
+	// Open the connection
 	err = discord.Open()
 	if err != nil {
 		fmt.Println("Error opening connection: ", err)
@@ -55,27 +61,19 @@ func main() {
 	// close the discord session automatically once the program ends
 	defer discord.Close()
 
-  // Show that the app was started successfully
-  discord.AddHandler(func(session *discordgo.Session, ready *discordgo.Ready) {
-    fmt.Printf("Raino is running as: %v#%v \n", session.State.User.Username, session.State.User.Discriminator)
-  })
-
-	discord.AddHandler(createMessage)
-	discord.Identify.Intents = discordgo.IntentsGuildMessages
-
-  registeredCommands := []*discordgo.ApplicationCommand{}
-  for _, command := range Commands {
-    fmt.Printf("Registering command: %v \n", command.Name)
-    cmd, err := discord.ApplicationCommandCreate(discord.State.User.ID, "", command)
-    if err != nil {
-      fmt.Printf("Error creating command: %v", command.Name)
-      panic(err)
-    }
-    registeredCommands = append(registeredCommands, cmd)
+  // register the commands
+  _, err = discord.ApplicationCommandBulkOverwrite(discord.State.User.ID, "", Commands)
+  if err != nil {
+    fmt.Println("Error registering commands: ", err)
+    return
   }
 
-  // initialize the command handlers
-  AddCommandHandlers(discord)
+	// initialize the command handlers
+	AddCommandHandlers(discord)
+
+  // initialize the message handler
+	discord.AddHandler(createMessage)
+	discord.Identify.Intents = discordgo.IntentsGuildMessages
 
 	// closing
 	fmt.Println("Bot is now running. Press CTRL-C to exit.")
@@ -84,18 +82,4 @@ func main() {
 	<-stop // block until we receive a signal
 
 	fmt.Println("Exiting.")
-
-  if len(registeredCommands) == 0 {
-    return
-  }
-
-  // remove all the registered commands
-  for _, command := range registeredCommands {
-    fmt.Printf("Removing command: %v \n", command.Name)
-    err := discord.ApplicationCommandDelete(discord.State.User.ID, "", command.ID)
-    if err != nil {
-      fmt.Printf("Couldn't delete command: %v", command.Name)
-      panic(err)
-    }
-  }
 }
