@@ -21,6 +21,29 @@ func helloWorldHandler(session *discordgo.Session, interaction *discordgo.Intera
 	}
 }
 
+type optionMap = map[string]*discordgo.ApplicationCommandInteractionDataOption
+
+func askHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate, options optionMap) {
+	// send a message about the question being in process, so a followup will come soon
+	err := session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+		// Type 5 is a deferred response with source
+		Type: discordgo.InteractionResponseType(5),
+	})
+	if err != nil {
+		session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
+			Content: "Couldn't defer the response... Sorry about that",
+		})
+		return
+	}
+
+	// respond with a followup message including the generated answer
+	content := gpt(options["message"].StringValue())
+	session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
+		Content: content,
+	})
+	return
+}
+
 func responsesHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
 	content := ""
 	switch interaction.ApplicationCommandData().Options[0].IntValue() {

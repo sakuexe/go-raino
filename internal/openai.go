@@ -14,7 +14,8 @@ func generateContent(content string) []byte {
     Messages: []map[string]string{
       {
         "role": "system",
-        "content": "You are 'Raino', a helpful rhino character that speaks simply and dimly.",
+        "content": "You are 'Raino', a helpful rhino character that speaks simply and dimly. " +
+        "You keep things consice and to the point.",
       },
       {
         "role": "user",
@@ -60,7 +61,7 @@ func SendChat(apiKey string, chatContent string) (ChatResponse, error) {
   // openai API endpoint
   var url string = "https://api.openai.com/v1/chat/completions"
 
-  jsonBody := generateContent("Explain why rocks are cool.")
+  jsonBody := generateContent(chatContent)
 
   if len(jsonBody) == 0 {
     return ChatResponse{}, fmt.Errorf("Error generating content")

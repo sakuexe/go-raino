@@ -9,18 +9,18 @@ import (
 	openai "github.com/sakuexe/go-raino/internal"
 )
 
-func gpt() {
+func gpt(message string) string {
 	var apiKey string = GetDotenv("OPENAI_API_KEY")
-	var content string = "Raino, why are rocks so cool?"
+	var content string = message
 
 	chat, err := openai.SendChat(apiKey, content)
 
 	if err != nil {
 		fmt.Println(err)
-		return
+		return "An error happened while trying to come up with a response..."
 	}
 
-	fmt.Println(chat.Choices[0].Message.Content)
+	return chat.Choices[0].Message.Content
 }
 
 func createMessage(session *discordgo.Session, message *discordgo.MessageCreate) {
@@ -39,12 +39,15 @@ func createMessage(session *discordgo.Session, message *discordgo.MessageCreate)
 }
 
 func main() {
-  // invite raino to the server: https://discord.com/oauth2/authorize?client_id=1241964425317978193&permissions=40667002567744&scope=bot
+
+	// invite raino to the server: https://discord.com/oauth2/authorize?client_id=1241964425317978193&permissions=40667002567744&scope=bot
 	discord, err := discordgo.New("Bot " + GetDotenv("DISCORD_TOKEN"))
 	if err != nil {
 		fmt.Println("Error creating Discord session: ", err)
 		return
 	}
+
+	discord.Identify.Intents = discordgo.IntentsGuildMessages
 
 	// Show that the app was started successfully
 	discord.AddHandler(func(session *discordgo.Session, ready *discordgo.Ready) {
@@ -61,19 +64,27 @@ func main() {
 	// close the discord session automatically once the program ends
 	defer discord.Close()
 
-  // register the commands
-  _, err = discord.ApplicationCommandBulkOverwrite(discord.State.User.ID, "", commands)
-  if err != nil {
-    fmt.Println("Error registering commands: ", err)
-    return
-  }
+  // in development, register the commands to a single guild in the 
+  // .env GUILD_ID variable. Otherwise register the commands globally.
+  // This is so that the bot methods will be available instantly, 
+  // instead of waiting for the global commands to be registered 
+  // (about an hour).
+  var guildID string = GetDotenv("GUILD_ID")
+  
+	_, err = discord.ApplicationCommandBulkOverwrite(discord.State.User.ID, guildID, commands)
+	if err != nil {
+		fmt.Println("Error registering commands: ", err)
+		return
+	}
+
+  // remove all the commands that do not exist anymore
+  removeUnusedCommands(discord)
 
 	// initialize the command handlers
 	addCommandHandlers(discord)
 
-  // initialize the message handler
+	// initialize the message handler
 	discord.AddHandler(createMessage)
-	discord.Identify.Intents = discordgo.IntentsGuildMessages
 
 	// closing
 	fmt.Println("Bot is now running. Press CTRL-C to exit.")
@@ -82,4 +93,5 @@ func main() {
 	<-stop // block until we receive a signal
 
 	fmt.Println("Exiting.")
+
 }
