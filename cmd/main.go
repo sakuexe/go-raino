@@ -62,14 +62,14 @@ func main() {
 	defer discord.Close()
 
   // register the commands
-  _, err = discord.ApplicationCommandBulkOverwrite(discord.State.User.ID, "", Commands)
+  _, err = discord.ApplicationCommandBulkOverwrite(discord.State.User.ID, "", commands)
   if err != nil {
     fmt.Println("Error registering commands: ", err)
     return
   }
 
 	// initialize the command handlers
-	AddCommandHandlers(discord)
+	addCommandHandlers(discord)
 
   // initialize the message handler
 	discord.AddHandler(createMessage)
