@@ -72,3 +72,13 @@ go build cmd/
 ```
 
 Because the bot was authenticated with OAuth2, it shouldn't need anything else.
+
+## Help
+
+Here are some helpful guides and resources that I used to build the bot. Maybe
+you can find them useful too!
+
+- [DiscordGo Documentation](https://pkg.go.dev/github.com/bwmarrin/discordgo)
+- [OpenAI API Documentation](https://beta.openai.com/docs/)
+- [Writing Modern Discord Bots on Go](url) by: [Fedor Lapshin](https://medium.com/@lapfed255) 
+- [Create a Bot for Discord in Go](https://dev.to/aurelievache/learning-go-by-examples-part-4-create-a-bot-for-discord-in-go-43cf) by [Aurélie Vache](https://dev.to/aurelievache)
