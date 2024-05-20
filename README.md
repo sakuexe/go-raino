@@ -59,6 +59,8 @@ cd go-raino
 2. Add a `.env` file for configuring the bot. You can copy the `env.example` file
 and fill in the necessary values.
 
+If you are developing this, remember to add the `GUILD_ID` for faster iteration.
+
 ```bash
 mv env.example .env
 vi .env # remember to fill in the values
