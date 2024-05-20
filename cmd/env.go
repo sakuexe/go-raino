@@ -14,7 +14,7 @@ func GetDotenv(variable string) string {
     panic("Error loading .env file at project root")
   }
 
-  token := os.Getenv("OPENAI_API_KEY")
+  token := os.Getenv(variable)
   if token == "" {
     errorMessage := fmt.Sprintf("Error: %s not found in .env file", variable)
     panic(errorMessage)
