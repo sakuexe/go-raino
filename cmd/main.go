@@ -6,7 +6,7 @@ import (
 	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
-	openai "github.com/sakuexe/go-raino/internal"
+	openai "github.com/sakuexe/go-raino/internal/openai"
 )
 
 func gpt(message string) string {

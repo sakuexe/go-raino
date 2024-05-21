@@ -19,6 +19,7 @@ var (
 			// all commands must have a description
 			Description: "A basic way to check that everything is working",
 		},
+
 		{
 			Name:        "ask",
 			Description: "Ask Raino a question or tell him something",
@@ -31,6 +32,34 @@ var (
 				},
 			},
 		},
+
+		{
+			Name:        "convert",
+			Description: "Converts a given image to a desired format",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Name:        "image-format",
+					Description: "The format you want to convert the image to",
+					Type:        discordgo.ApplicationCommandOptionString,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "png",
+							Value: "png",
+						},
+						{
+							Name:  "jpeg",
+							Value: "jpeg",
+						},
+            {
+              Name:  "webp",
+              Value: "webp",
+            },
+					},
+					Required: true,
+				},
+			},
+		},
+
 		{
 			Name:        "responses",
 			Description: "A way to check the responses",
@@ -73,12 +102,14 @@ func addCommandHandlers(session *discordgo.Session) {
 				optionMap[option.Name] = option
 			}
 			askHandler(session, interaction, optionMap)
+    case "convert":
+      convertHandler(session, interaction)
 		}
 	})
 }
 
 func removeUnusedCommands(session *discordgo.Session) {
-  // https://github.com/bwmarrin/discordgo/issues/1518#issuecomment-2076083061
+	// https://github.com/bwmarrin/discordgo/issues/1518#issuecomment-2076083061
 	// Get all the existing commands in the guild
 	existingCommands, err := session.ApplicationCommands(session.State.User.ID, "")
 	if err != nil {
@@ -86,16 +117,16 @@ func removeUnusedCommands(session *discordgo.Session) {
 		return
 	}
 
-  // create a map of the command names
+	// create a map of the command names
 	commandNames := make(map[string]bool, len(commands))
 	for _, command := range commands {
 		commandNames[command.Name] = true
 	}
 
-  // iterate over the existing commands and remove the ones that are not in the list
+	// iterate over the existing commands and remove the ones that are not in the list
 	for _, command := range existingCommands {
 		if _, found := commandNames[command.Name]; found {
-      fmt.Println("Command found in list, keeping it", command.Name)
+			fmt.Println("Command found in list, keeping it", command.Name)
 			continue
 		}
 		fmt.Println("Removing command: ", command.Name)
