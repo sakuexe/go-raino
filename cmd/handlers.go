@@ -9,10 +9,19 @@ import (
 	imageconversion "github.com/sakuexe/go-raino/internal/image-conversion"
 )
 
+var (
+	defaultStatus = discordgo.UpdateStatusData{
+		Status: "idle",
+		Activities: []*discordgo.Activity{
+      { Type: discordgo.ActivityTypeWatching, Name: "his rocks" },
+		},
+	}
+)
+
 func helloWorldHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
-  // add a status
-  session.UpdateCustomStatus("Helloing they world")
-  defer session.UpdateCustomStatus("")
+	// add a status
+	session.UpdateCustomStatus("Helloing they world")
+	defer session.UpdateStatusComplex(defaultStatus)
 
 	err := session.InteractionRespond(
 		interaction.Interaction,
@@ -30,9 +39,9 @@ func helloWorldHandler(session *discordgo.Session, interaction *discordgo.Intera
 type optionMap = map[string]*discordgo.ApplicationCommandInteractionDataOption
 
 func askHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate, options optionMap) {
-  status := fmt.Sprintf("Responding to %s", interaction.Interaction.Member.User.Username)
-  session.UpdateCustomStatus(status)
-  defer session.UpdateCustomStatus("")
+	status := fmt.Sprintf("Responding to %s", interaction.Interaction.Member.User.Username)
+	session.UpdateCustomStatus(status)
+	defer session.UpdateStatusComplex(defaultStatus)
 
 	// send a message about the question being in process, so a followup will come soon
 	err := session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
@@ -55,8 +64,14 @@ func askHandler(session *discordgo.Session, interaction *discordgo.InteractionCr
 }
 
 func convertHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+	// customize some variables
 	var format string = interaction.ApplicationCommandData().Options[0].StringValue()
 	var messageHistoryLimit int = 100
+
+	// add a status for the process
+	status := fmt.Sprintf("Converting an image to %s", format)
+	session.UpdateCustomStatus(status)
+	defer session.UpdateStatusComplex(defaultStatus)
 
 	// send a message about the process being in progress
 	err := session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
