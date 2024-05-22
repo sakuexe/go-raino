@@ -24,18 +24,21 @@ func gpt(message string) string {
 }
 
 func createMessage(session *discordgo.Session, message *discordgo.MessageCreate) {
-	// Ignore all messages created by the bot itself
-	if message.Author.ID == session.State.User.ID {
-		return
-	}
-	// if the message is ping reply with pong!
-	if message.Content == "ping" {
-		session.ChannelMessageSend(message.ChannelID, "pong")
-	}
-	// if the message is hello reply with hello!
-	if message.Content == "hello" {
-		session.ChannelMessageSend(message.ChannelID, "Hello!")
-	}
+  // make the message handler asynchronous
+	go func() {
+		// Ignore all messages created by the bot itself
+		if message.Author.ID == session.State.User.ID {
+			return
+		}
+		// if the message is ping reply with pong!
+		if message.Content == "ping" {
+			session.ChannelMessageSend(message.ChannelID, "pong")
+		}
+		// if the message is hello reply with hello!
+		if message.Content == "hello" {
+			session.ChannelMessageSend(message.ChannelID, "Hello!")
+		}
+	}()
 }
 
 func main() {
@@ -64,21 +67,21 @@ func main() {
 	// close the discord session automatically once the program ends
 	defer discord.Close()
 
-  // in development, register the commands to a single guild in the 
-  // .env GUILD_ID variable. Otherwise register the commands globally.
-  // This is so that the bot methods will be available instantly, 
-  // instead of waiting for the global commands to be registered 
-  // (about an hour).
-  var guildID string = GetDotenv("GUILD_ID")
-  
+	// in development, register the commands to a single guild in the
+	// .env GUILD_ID variable. Otherwise register the commands globally.
+	// This is so that the bot methods will be available instantly,
+	// instead of waiting for the global commands to be registered
+	// (about an hour).
+	var guildID string = GetDotenv("GUILD_ID")
+
 	_, err = discord.ApplicationCommandBulkOverwrite(discord.State.User.ID, guildID, commands)
 	if err != nil {
 		fmt.Println("Error registering commands: ", err)
 		return
 	}
 
-  // remove all the commands that do not exist anymore
-  removeUnusedCommands(discord)
+	// remove all the commands that do not exist anymore
+	removeUnusedCommands(discord)
 
 	// initialize the command handlers
 	addCommandHandlers(discord)

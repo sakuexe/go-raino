@@ -92,18 +92,18 @@ func addCommandHandlers(session *discordgo.Session) {
 		switch commandData.Name {
 
 		case "hello-world":
-			helloWorldHandler(session, interaction)
+			go helloWorldHandler(session, interaction)
 		case "responses":
-			responsesHandler(session, interaction)
+			go responsesHandler(session, interaction)
 		case "ask":
 			// create a map of the options for easy access
 			optionMap := make(optionMap)
 			for _, option := range commandData.Options {
 				optionMap[option.Name] = option
 			}
-			askHandler(session, interaction, optionMap)
+			go askHandler(session, interaction, optionMap)
     case "convert":
-      convertHandler(session, interaction)
+      go convertHandler(session, interaction)
 		}
 	})
 }
