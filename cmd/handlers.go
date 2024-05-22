@@ -96,9 +96,9 @@ func convertHandler(session *discordgo.Session, interaction *discordgo.Interacti
 
 	imageResponse, err := imageconversion.ConvertImage(format, attachmentUrl)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error converting the image: ", err)
 		session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
-			Content: "An error happened while trying to convert the image...",
+			Content: err.Error(),
 		})
 		return
 	}

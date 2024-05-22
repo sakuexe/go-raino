@@ -29,9 +29,9 @@ type ImageResponse struct {
 func getImageFromUrl(url string) error {
 	response, err := http.DefaultClient.Get(url)
 	if err != nil {
-		fmt.Printf("No response recieved from %s \n", url)
+    fmt.Printf("Get request failed to: %s \n", url)
 		fmt.Println(err)
-		return err
+    return fmt.Errorf("Couldn't get the image from [the attachment url](%s)", url)
 	}
 	defer response.Body.Close()
 
@@ -41,9 +41,9 @@ func getImageFromUrl(url string) error {
     image, err = webp.Decode(response.Body)
     if err != nil {
       // if it fails too, return the error
-      fmt.Printf("Couldn't decode an image from the response body of %s \n", url)
+      fmt.Printf("Error decoding image from response body: %s \n", url)
       fmt.Println(err)
-      return err
+      return fmt.Errorf("I don't know how to handle the format of your image. (%s)", response.Header.Get("Content-Type"))
     }
 	}
 
@@ -61,7 +61,6 @@ func getImageFromUrl(url string) error {
 func ConvertImage(format string, imageurl string) (ImageResponse, error) {
 	err := getImageFromUrl(imageurl)
 	if err != nil {
-		fmt.Printf("No image could be fetched from the url: %s\n", imageurl)
 		return imageResponse, err
 	}
 
@@ -76,7 +75,8 @@ func ConvertImage(format string, imageurl string) (ImageResponse, error) {
 			Quality: 90, // Quality factor (0:small..100:big)
 		})
 		if err != nil {
-			return imageResponse, err
+      fmt.Println("Error encoding the image to jpeg: ", err)
+			return imageResponse, fmt.Errorf("I wasn't able to encode the image to jpeg...")
 		}
 		imageResponse.ContentType = "image/jpeg"
 		imageResponse.Buffer = buffer
@@ -85,7 +85,8 @@ func ConvertImage(format string, imageurl string) (ImageResponse, error) {
 	case "png":
 		err := png.Encode(buffer, imageResponse.Image)
 		if err != nil {
-			return imageResponse, err
+      fmt.Println("Error encoding the image to png: ", err)
+			return imageResponse, fmt.Errorf("I wasn't able to encode the image to png...")
 		}
 		imageResponse.ContentType = "image/png"
 		imageResponse.Buffer = buffer
@@ -98,7 +99,8 @@ func ConvertImage(format string, imageurl string) (ImageResponse, error) {
       Exact: false, // Use exact quality
     })
     if err != nil {
-      return imageResponse, err
+      fmt.Println("Error encoding the image to webp: ", err)
+      return imageResponse, fmt.Errorf("I wasn't able to encode the image to webp...")
     }
     imageResponse.ContentType = "image/webp"
     imageResponse.Buffer = buffer
