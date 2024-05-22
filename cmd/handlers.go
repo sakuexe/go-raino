@@ -110,7 +110,7 @@ func convertHandler(session *discordgo.Session, interaction *discordgo.Interacti
 	// fmt.Println("Filepath: ", imageResponse.Filepath)
 
 	// send a follow up message
-	var content string = fmt.Sprintf("Here you go, %s:", user.GlobalName)
+	var content string = fmt.Sprintf("Here you go, <@%s>:", user.ID)
 	session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
 		Content: content,
 		Files: []*discordgo.File{
