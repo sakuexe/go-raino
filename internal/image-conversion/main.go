@@ -8,6 +8,8 @@ import (
 	"image/png"
 	"net/http"
 	"strings"
+
+	"github.com/chai2010/webp"
 )
 
 var (
@@ -35,9 +37,14 @@ func getImageFromUrl(url string) error {
 
 	image, _, err := image.Decode(response.Body)
 	if err != nil {
-		fmt.Printf("Couldn't decode an image from the response body of %s \n", url)
-		fmt.Println(err)
-		return err
+    // try decoding the image as a webp
+    image, err = webp.Decode(response.Body)
+    if err != nil {
+      // if it fails too, return the error
+      fmt.Printf("Couldn't decode an image from the response body of %s \n", url)
+      fmt.Println(err)
+      return err
+    }
 	}
 
 	imageResponse.Image = image
@@ -60,32 +67,41 @@ func ConvertImage(format string, imageurl string) (ImageResponse, error) {
 
 	imageResponse.Filepath = fmt.Sprintf("%s/%s.%s", imageDirectory, imageResponse.Filename, format)
 	imageResponse.Filename = fmt.Sprintf("%s.%s", imageResponse.Filename, format)
+  buffer := new(bytes.Buffer)
 
 	switch format {
 
 	case "jpeg":
-		fmt.Println("Converting to jpeg")
-
-		buffer := new(bytes.Buffer)
 		err := jpeg.Encode(buffer, imageResponse.Image, &jpeg.Options{
-			Quality: 90,
+			Quality: 90, // Quality factor (0:small..100:big)
 		})
 		if err != nil {
 			return imageResponse, err
 		}
 		imageResponse.ContentType = "image/jpeg"
 		imageResponse.Buffer = buffer
-    return imageResponse, nil
+		return imageResponse, nil
 
 	case "png":
-		fmt.Println("Converting to png")
-		buffer := new(bytes.Buffer)
 		err := png.Encode(buffer, imageResponse.Image)
 		if err != nil {
 			return imageResponse, err
 		}
 		imageResponse.ContentType = "image/png"
 		imageResponse.Buffer = buffer
+		return imageResponse, nil
+
+	case "webp":
+    err := webp.Encode(buffer, imageResponse.Image, &webp.Options{
+      Quality: 90, // Quality factor (0:small..100:big)
+      Lossless: false, // Lossless encoding
+      Exact: false, // Use exact quality
+    })
+    if err != nil {
+      return imageResponse, err
+    }
+    imageResponse.ContentType = "image/webp"
+    imageResponse.Buffer = buffer
     return imageResponse, nil
 	}
 
