@@ -43,7 +43,7 @@ OpenAI. You can get one by signing up at their [website](https://platform.openai
 Generate a token and add some balance to the account if needed. Save the token,
 because it will get put into the bot's configuration file.
 
-### Run Go Raino!
+## Run Go Raino!
 
 To run the bot, you need to have Go installed on your machine. If you don't have it,
 you can download it from the [official website](https://golang.org/). Or through
@@ -71,6 +71,20 @@ vi .env # remember to fill in the values
 ```bash
 go build cmd/
 ./cmd
+```
+
+### Run with Docker
+
+1. Build the Docker image.
+
+```bash
+docker build -t go-raino .
+```
+
+2. Run the Docker container.
+
+```bash
+docker run -d --rm --name raino go-raino
 ```
 
 Because the bot was authenticated with OAuth2, it shouldn't need anything else.
