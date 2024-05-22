@@ -10,6 +10,10 @@ import (
 )
 
 func helloWorldHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+  // add a status
+  session.UpdateCustomStatus("Helloing they world")
+  defer session.UpdateCustomStatus("")
+
 	err := session.InteractionRespond(
 		interaction.Interaction,
 		&discordgo.InteractionResponse{
@@ -26,6 +30,10 @@ func helloWorldHandler(session *discordgo.Session, interaction *discordgo.Intera
 type optionMap = map[string]*discordgo.ApplicationCommandInteractionDataOption
 
 func askHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate, options optionMap) {
+  status := fmt.Sprintf("Responding to %s", interaction.Interaction.Member.User.Username)
+  session.UpdateCustomStatus(status)
+  defer session.UpdateCustomStatus("")
+
 	// send a message about the question being in process, so a followup will come soon
 	err := session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
 		// Type 5 is a deferred response with source
