@@ -6,6 +6,7 @@ import (
 	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/sakuexe/go-raino/internal/env"
 	"github.com/sakuexe/go-raino/internal/handlers"
 )
 
@@ -31,7 +32,7 @@ func createMessage(session *discordgo.Session, message *discordgo.MessageCreate)
 func main() {
 
 	// invite raino to the server: https://discord.com/oauth2/authorize?client_id=1241964425317978193&permissions=40667002567744&scope=bot
-	discord, err := discordgo.New("Bot " + GetDotenv("DISCORD_TOKEN"))
+	discord, err := discordgo.New("Bot " + env.GetDotenv("DISCORD_TOKEN"))
 	if err != nil {
 		fmt.Println("Error creating Discord session: ", err)
 		return
@@ -59,7 +60,7 @@ func main() {
 	// This is so that the bot methods will be available instantly,
 	// instead of waiting for the global commands to be registered
 	// (about an hour).
-	var guildID string = GetDotenv("GUILD_ID")
+	var guildID string = env.GetDotenv("GUILD_ID")
 
 	_, err = discord.ApplicationCommandBulkOverwrite(discord.State.User.ID, guildID, handlers.Commands)
 	if err != nil {

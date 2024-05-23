@@ -43,6 +43,10 @@ OpenAI. You can get one by signing up at their [website](https://platform.openai
 Generate a token and add some balance to the account if needed. Save the token,
 because it will get put into the bot's configuration file.
 
+You can also choose the exact model you want to use for the chatbot functionality.
+Just fill the `GPT_MODEL` field in the `.env` file with the model name. The default
+model used, if no model is specified, is `gpt-3.5-turbo`.
+
 ## Run Go Raino!
 
 To run the bot, you need to have Go installed on your machine. If you don't have it,

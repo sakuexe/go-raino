@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
@@ -64,29 +65,6 @@ var (
               Name:  "webp",
               Value: "webp",
             },
-					},
-					Required: true,
-				},
-			},
-		},
-
-		{
-			Name:        "responses",
-			Description: "A way to check the responses",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Name:        "resp-type",
-					Description: "The type of response you want to see",
-					Type:        discordgo.ApplicationCommandOptionInteger,
-					Choices: []*discordgo.ApplicationCommandOptionChoice{
-						{
-							Name:  "Channel message with source",
-							Value: 4,
-						},
-						{
-							Name:  "Deferred response with source",
-							Value: 5,
-						},
 					},
 					Required: true,
 				},
@@ -160,5 +138,7 @@ func RemoveUnusedCommands(session *discordgo.Session) {
 			fmt.Println("Error removing command: ", err)
 			return
 		}
+
+    time.Sleep(time.Second * 2)
 	}
 }

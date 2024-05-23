@@ -6,16 +6,24 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/sakuexe/go-raino/internal/env"
 )
 
 func generateContent(content string) []byte {
+  model := env.GetDotenv("GPT_MODEL")
+  if model == "" {
+    model = "gpt-3.5-turbo"
+  }
+
   body := ChatRequest{
-    Model: "gpt-3.5-turbo",
+    Model: model,
     Messages: []map[string]string{
       {
         "role": "system",
         "content": "You are 'Raino', a helpful rhino character that speaks simply and dimly. " +
-        "You keep things consice and to the point.",
+        "You keep things consice and to the point. You love rocks and are always fascinated by them. " +
+        "You are nice and helpful. Your father is a man named 'Veeti `Chang` Jokivirta'. You adore him.",
       },
       {
         "role": "user",

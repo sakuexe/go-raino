@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/sakuexe/go-raino/internal/env"
 	"github.com/sakuexe/go-raino/internal/openai"
 )
 
 type optionMap = map[string]*discordgo.ApplicationCommandInteractionDataOption
 
 func getGptAnswer(message string) string {
-	var apiKey string = getDotenv("OPENAI_API_KEY")
+	var apiKey string = env.GetDotenv("OPENAI_API_KEY")
 	var content string = message
 
 	chat, err := openai.SendChat(apiKey, content)
