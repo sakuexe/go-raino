@@ -6,22 +6,9 @@ import (
 	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
-	openai "github.com/sakuexe/go-raino/internal/openai"
+	"github.com/sakuexe/go-raino/internal/handlers"
 )
 
-func gpt(message string) string {
-	var apiKey string = GetDotenv("OPENAI_API_KEY")
-	var content string = message
-
-	chat, err := openai.SendChat(apiKey, content)
-
-	if err != nil {
-		fmt.Println(err)
-		return "An error happened while trying to come up with a response..."
-	}
-
-	return chat.Choices[0].Message.Content
-}
 
 func createMessage(session *discordgo.Session, message *discordgo.MessageCreate) {
   // make the message handler asynchronous
@@ -74,17 +61,17 @@ func main() {
 	// (about an hour).
 	var guildID string = GetDotenv("GUILD_ID")
 
-	_, err = discord.ApplicationCommandBulkOverwrite(discord.State.User.ID, guildID, commands)
+	_, err = discord.ApplicationCommandBulkOverwrite(discord.State.User.ID, guildID, handlers.Commands)
 	if err != nil {
 		fmt.Println("Error registering commands: ", err)
 		return
 	}
 
 	// remove all the commands that do not exist anymore
-	removeUnusedCommands(discord)
+	handlers.RemoveUnusedCommands(discord)
 
 	// initialize the command handlers
-	addCommandHandlers(discord)
+	handlers.AddCommandHandlers(discord)
 
 	// initialize the message handler
 	discord.AddHandler(createMessage)

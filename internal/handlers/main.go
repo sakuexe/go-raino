@@ -1,19 +1,29 @@
-package main
+package handlers
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/joho/godotenv"
 )
 
-// todo: try the strategy pattern
+// todo: try to implement the strategy pattern
 type Command interface {
 	HandleInteraction(s *discordgo.Session, i *discordgo.InteractionCreate)
 }
 
 var (
+  // the default status of the bot
+	defaultStatus = discordgo.UpdateStatusData{
+		Status: "idle",
+		Activities: []*discordgo.Activity{
+      { Type: discordgo.ActivityTypeWatching, Name: "his rocks" },
+		},
+	}
+
 	// All the slash commands that the bot will have
-	commands = []*discordgo.ApplicationCommand{
+	Commands = []*discordgo.ApplicationCommand{
 		{
 			Name: "hello-world",
 			// all commands must have a description
@@ -85,7 +95,23 @@ var (
 	}
 )
 
-func addCommandHandlers(session *discordgo.Session) {
+func getDotenv(variable string) string {
+  err := godotenv.Load()
+
+  if err != nil {
+    panic("Error loading .env file at project root")
+  }
+
+  token := os.Getenv(variable)
+  if token == "" {
+    errorMessage := fmt.Sprintf("Error: %s not found in .env file", variable)
+    panic(errorMessage)
+  }
+
+  return token
+}
+
+func AddCommandHandlers(session *discordgo.Session) {
 	session.AddHandler(func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
 		// get the command name
 		commandData := interaction.ApplicationCommandData()
@@ -93,8 +119,6 @@ func addCommandHandlers(session *discordgo.Session) {
 
 		case "hello-world":
 			go helloWorldHandler(session, interaction)
-		case "responses":
-			go responsesHandler(session, interaction)
 		case "ask":
 			// create a map of the options for easy access
 			optionMap := make(optionMap)
@@ -108,7 +132,7 @@ func addCommandHandlers(session *discordgo.Session) {
 	})
 }
 
-func removeUnusedCommands(session *discordgo.Session) {
+func RemoveUnusedCommands(session *discordgo.Session) {
 	// https://github.com/bwmarrin/discordgo/issues/1518#issuecomment-2076083061
 	// Get all the existing commands in the guild
 	existingCommands, err := session.ApplicationCommands(session.State.User.ID, "")
@@ -118,8 +142,8 @@ func removeUnusedCommands(session *discordgo.Session) {
 	}
 
 	// create a map of the command names
-	commandNames := make(map[string]bool, len(commands))
-	for _, command := range commands {
+	commandNames := make(map[string]bool, len(Commands))
+	for _, command := range Commands {
 		commandNames[command.Name] = true
 	}
 
