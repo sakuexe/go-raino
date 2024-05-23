@@ -1,0 +1,8 @@
+services:
+  goraino:
+    container_name: goraino
+    restart: always
+    build: .
+    env_file:
+      - .env
+
