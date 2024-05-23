@@ -53,7 +53,10 @@ func getImageFromUrl(url string) error {
 	imageResponse.Filename = urlStrings[len(urlStrings)-1]
 	// only get the filename without the extension
 	lastDot := strings.LastIndex(imageResponse.Filename, ".")
-	imageResponse.Filename = imageResponse.Filename[:lastDot]
+  if lastDot != -1 {
+    // if there is an extension, remove it
+    imageResponse.Filename = imageResponse.Filename[:lastDot]
+  }
 
 	return nil
 }
