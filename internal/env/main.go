@@ -1,7 +1,6 @@
 package env
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -15,10 +14,5 @@ func GetDotenv(variable string) string {
   }
 
   token := os.Getenv(variable)
-  if token == "" {
-    errorMessage := fmt.Sprintf("Error: %s not found in .env file", variable)
-    panic(errorMessage)
-  }
-
   return token
 }
