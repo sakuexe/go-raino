@@ -10,8 +10,9 @@ RUN go mod download && go mod verify
 
 COPY . .
 
-# Download GCC (required for chai2010/webp)
+# Download libwebp (for webp conversion)
 RUN apk add build-base
+RUN apk add --no-cache libwebp-dev
 
 # Build the project
 RUN CGO_ENABLED=1 GOOS=linux \
