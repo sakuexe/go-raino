@@ -17,7 +17,19 @@ image, so you can get the authentic Raino experience!
 
 To get Raino up and running you need the following:
 
-1. **Discord Bot Token** 
+1. **Install Dependencies**
+
+Raino uses the DiscordGo library for interfacing with Discord's API.
+It also needs the necessary libraries for image conversion to work.
+
+```bash
+# Go packages
+go mod download && go mod verify
+# Webp library for image conversion
+sudo apt install libwebp-dev -y
+```
+
+2. **Discord Bot Token** 
 
 If you haven't hosted your own discord bot before, you need to set up
 a discord application from the [Discord Developer Portal](https://discord.com/developers/applications).
@@ -26,7 +38,7 @@ Once you have it created, grab the token from the `Bot` section.
 Click the `Reset Token` for the code to show up. Then Save it somewhere safe.
 It will be used in a later step.
 
-2. **OAuth2 Permissions** 
+3. **OAuth2 Permissions** 
 
 Next step is to invite the bot to your server.
 Go to the `OAuth2` section of your application and select the `bot` scope.
@@ -35,7 +47,7 @@ Then select the permissions you want the bot to have.
 Once finished, copy the generated URL and paste it in your browser. Follow
 the instructions to add the bot to a server of your choosing.
 
-3. **Optional: OpenAI API Key**
+4. **Optional: OpenAI API Key**
 
 If you want to use the chatbot functionality, you need to get an API key from
 OpenAI. You can get one by signing up at their [website](https://platform.openai.com/).
