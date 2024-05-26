@@ -105,6 +105,21 @@ docker compose up --build -d
 
 Because the bot was authenticated with OAuth2, it shouldn't need anything else.
 
+### Run Raino at startup
+
+You can set up Raino to automatically start at boot by using a `raino.service` file.
+This file should be placed (or symlinked) to the `/etc/systemd/system/` directory.
+
+```bash
+sudo ln -s $(pwd)/raino.service /etc/systemd/system/
+# enable the service to start at boot
+sudo systemctl enable raino
+# start the service manually
+sudo systemctl start raino
+# check the status of the service
+systemctl status raino
+```
+
 ## Help
 
 Here are some helpful guides and resources that I used to build the bot. Maybe
