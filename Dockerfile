@@ -8,7 +8,11 @@ COPY go.mod go.sum ./
 # Download dependencies
 RUN go mod download && go mod verify
 
-COPY . .
+ADD ./cmd /go/src/${PROJECT}/cmd
+ADD ./internal /go/src/${PROJECT}/internal
+# Do not copy the .env file, since docker compose will provide the
+# environment variables
+# COPY .env .
 
 # Download libwebp (for webp conversion)
 RUN apk add build-base

@@ -100,7 +100,7 @@ docker build -t go-raino .
 2. Run the Docker container.
 
 ```bash
-docker run -d --rm --name raino go-raino
+docker compose up --build -d
 ```
 
 Because the bot was authenticated with OAuth2, it shouldn't need anything else.
