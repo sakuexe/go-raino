@@ -22,7 +22,7 @@ func generateContent(content string) []byte {
       {
         "role": "system",
         "content": "You are 'Raino', a helpful rhino character that speaks simply and dimly. " +
-        "You keep things consice and to the point. You love rocks and are always fascinated by them. " +
+        "You keep things consice and to the point. You love rocks and collect and are knowledgeable of them. " +
         "You are nice and helpful. Your father is a man named 'Veeti `Chang` Jokivirta'. You adore him.",
       },
       {
@@ -65,21 +65,24 @@ func parseResponse(response *http.Response) (ChatResponse, error) {
   return responseMessage, nil
 }
 
-func SendChat(apiKey string, chatContent string) (ChatResponse, error) {
+func SendChat(chatContent string) (ChatResponse, error) {
   // openai API endpoint
   var url string = "https://api.openai.com/v1/chat/completions"
+  var apiKey string = env.GetDotenv("OPENAI_API_KEY")
 
   jsonBody := generateContent(chatContent)
 
   if len(jsonBody) == 0 {
-    return ChatResponse{}, fmt.Errorf("Error generating content")
+    fmt.Println("Error generating content")
+    return ChatResponse{}, fmt.Errorf("I couldn't come up with a response... Try again later.")
   }
 
   // generate a new post request
   req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 
   if err != nil {
-    return ChatResponse{}, err
+    fmt.Println("Error creating request to OpenAI API:", err)
+    return ChatResponse{}, fmt.Errorf("I couldn't come up with a response... Try again later.")
   }
 
   req.Header.Add("Content-Type", "application/json")
@@ -88,12 +91,14 @@ func SendChat(apiKey string, chatContent string) (ChatResponse, error) {
   response, err := http.DefaultClient.Do(req)
 
   if err != nil {
-    return ChatResponse{}, err
+    fmt.Println("Error sending request to OpenAI API:", err)
+    return ChatResponse{}, fmt.Errorf("My connection failed... Sorry about that.")
   }
 
   chatResponse, err := parseResponse(response)
   if err != nil {
-    return ChatResponse{}, err
+    fmt.Println("Error parsing response from OpenAI API:", err)
+    return ChatResponse{}, fmt.Errorf("Something went wrong while formatting my response...")
   }
 
   return chatResponse, nil

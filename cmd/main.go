@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"regexp"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sakuexe/go-raino/internal/env"
@@ -18,14 +19,18 @@ func createMessage(session *discordgo.Session, message *discordgo.MessageCreate)
 		if message.Author.ID == session.State.User.ID {
 			return
 		}
-		// if the message is ping reply with pong!
-		if message.Content == "ping" {
-			session.ChannelMessageSend(message.ChannelID, "pong")
-		}
+
 		// if the message is hello reply with hello!
-		if message.Content == "hello" {
-			session.ChannelMessageSend(message.ChannelID, "Hello!")
+    askPattern, _ := regexp.Compile("([Hh]ey\\s?[Rr]aino)")
+		if askPattern.MatchString(message.Content) {
+      response := askMessageHandler(session, message)
+			session.ChannelMessageSend(message.ChannelID, response)
 		}
+
+    rockPattern, _ := regexp.Compile("[Rr]ock")
+    if rockPattern.MatchString(message.Content) {
+      session.MessageReactionAdd(message.ChannelID, message.ID, "🪨")
+    }
 	}()
 }
 
