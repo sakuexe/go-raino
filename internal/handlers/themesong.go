@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -51,6 +53,7 @@ func themeSongHandler(session *discordgo.Session, interaction *discordgo.Interac
 	}
 
 	// load the stupid fucking dca file that is impossible to convert to
+  // file := "./media/themesong.mp3"
 
 	// play the sound in the voice channel the user is in
 	vc, err := session.ChannelVoiceJoin(guild.ID, voiceState.ChannelID, false, true)
@@ -68,8 +71,6 @@ func themeSongHandler(session *discordgo.Session, interaction *discordgo.Interac
 	// wait for a specified time before playing the sound
 	time.Sleep(500 * time.Millisecond)
 	vc.Speaking(true)
-
-	// TODO: play the song
 
 	time.Sleep(500 * time.Millisecond)
 	vc.Speaking(false)
