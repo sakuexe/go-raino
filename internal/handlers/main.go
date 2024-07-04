@@ -15,11 +15,11 @@ type Command interface {
 }
 
 var (
-  // the default status of the bot
+	// the default status of the bot
 	defaultStatus = discordgo.UpdateStatusData{
 		Status: "idle",
 		Activities: []*discordgo.Activity{
-      { Type: discordgo.ActivityTypeWatching, Name: "his rocks" },
+			{Type: discordgo.ActivityTypeWatching, Name: "his rocks"},
 		},
 	}
 
@@ -61,32 +61,37 @@ var (
 							Name:  "jpeg",
 							Value: "jpeg",
 						},
-            {
-              Name:  "webp",
-              Value: "webp",
-            },
+						{
+							Name:  "webp",
+							Value: "webp",
+						},
 					},
 					Required: true,
 				},
 			},
 		},
+
+		{
+      Name:        "themesong",
+      Description: "Plays the theme song of Raino the Rhino.",
+    },
 	}
 )
 
 func getDotenv(variable string) string {
-  err := godotenv.Load()
+	err := godotenv.Load()
 
-  if err != nil {
-    panic("Error loading .env file at project root")
-  }
+	if err != nil {
+		panic("Error loading .env file at project root")
+	}
 
-  token := os.Getenv(variable)
-  if token == "" {
-    errorMessage := fmt.Sprintf("Error: %s not found in .env file", variable)
-    panic(errorMessage)
-  }
+	token := os.Getenv(variable)
+	if token == "" {
+		errorMessage := fmt.Sprintf("Error: %s not found in .env file", variable)
+		panic(errorMessage)
+	}
 
-  return token
+	return token
 }
 
 func AddCommandHandlers(session *discordgo.Session) {
@@ -104,8 +109,10 @@ func AddCommandHandlers(session *discordgo.Session) {
 				optionMap[option.Name] = option
 			}
 			go askHandler(session, interaction, optionMap)
-    case "convert":
-      go convertHandler(session, interaction)
+		case "convert":
+			go convertHandler(session, interaction)
+    case "themesong":
+      go themeSongHandler(session, interaction)
 		}
 	})
 }
@@ -139,6 +146,6 @@ func RemoveUnusedCommands(session *discordgo.Session) {
 			return
 		}
 
-    time.Sleep(time.Second * 2)
+		time.Sleep(time.Second * 2)
 	}
 }

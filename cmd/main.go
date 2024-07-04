@@ -43,7 +43,7 @@ func main() {
 		return
 	}
 
-	discord.Identify.Intents = discordgo.IntentsGuildMessages
+	discord.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildVoiceStates
 
 	// Show that the app was started successfully
 	discord.AddHandler(func(session *discordgo.Session, ready *discordgo.Ready) {
