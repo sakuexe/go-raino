@@ -2,25 +2,13 @@ package handlers
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sakuexe/go-raino/internal/openai"
 )
 
 type optionMap = map[string]*discordgo.ApplicationCommandInteractionDataOption
-
-func getGptAnswer(message string) string {
-	var content string = message
-
-	chat, err := openai.SendChat(content)
-
-	if err != nil {
-		fmt.Println(err)
-		return "An error happened while trying to come up with a response..."
-	}
-
-	return chat.Choices[0].Message.Content
-}
 
 func askHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate, options optionMap) {
 	status := fmt.Sprintf("Responding to %s", interaction.Interaction.Member.User.Username)
@@ -33,6 +21,7 @@ func askHandler(session *discordgo.Session, interaction *discordgo.InteractionCr
 		Type: discordgo.InteractionResponseType(5),
 	})
 	if err != nil {
+		slog.Error("error while sending message", "error", err.Error())
 		session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
 			Content: "Couldn't defer the response... Sorry about that",
 		})
@@ -40,10 +29,25 @@ func askHandler(session *discordgo.Session, interaction *discordgo.InteractionCr
 	}
 
 	// respond with a followup message including the generated answer
-	content := getGptAnswer(options["message"].StringValue())
+	content, err := openai.AskQuestion(options["message"].StringValue())
+	if err != nil {
+		slog.Error("something went wrong during /ask response generation", "error", err.Error())
+		session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
+			Content: "something went wrong while reading my stone tablet...",
+		})
+		return
+	}
+
+	if len(content.Choices) == 0 {
+		slog.Error("Response's Choices is empty (maybe insufficent tokens?)")
+		session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
+			Content: "Sorry friend! My stone tablet ran out of data...",
+		})
+		return
+	}
+
 	session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
-		Content: content,
+		Content: content.Choices[0].Message.Content,
 	})
 	return
 }
-

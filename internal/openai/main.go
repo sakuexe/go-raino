@@ -1,106 +1,65 @@
 package openai
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
+	"log/slog"
 
-	"github.com/sakuexe/go-raino/internal/env"
+	"github.com/bwmarrin/discordgo"
+	"github.com/sakuexe/go-raino/internal/raino"
 )
 
-func generateContent(content string) []byte {
-  model := env.GetDotenv("GPT_MODEL")
-  if model == "" {
-    model = "gpt-3.5-turbo"
-  }
+// gets a ChatRequest and converts it to a json byte array
+func createRequestBody(request *ChatRequest) []byte {
+	jsonBody, err := json.Marshal(request)
 
-  body := ChatRequest{
-    Model: model,
-    Messages: []map[string]string{
-      {
-        "role": "system",
-        "content": "You are 'Raino', a helpful rhino character that speaks simply and dimly. " +
-        "You keep things consice and to the point. You love rocks and collect and are knowledgeable of them. " +
-        "You are nice and helpful. Your father is a man named 'Veeti `Chang` Jokivirta'. You adore him. " +
-        "You can also convert images between jpeg, png and webp formats. You NEVER start your response with 'Raino:'.",
-      },
-      {
-        "role": "user",
-        "content": content,
-      },
-    },
-  }
+	if err != nil {
+		slog.Error("Error converting request to json", "error", err.Error())
+		return []byte{}
+	}
 
-  // convert into a json string
-  jsonBody, err := json.Marshal(body)
-
-  if err != nil {
-    fmt.Println("Error converting body to json")
-    fmt.Println(err)
-    return []byte{}
-  }
-
-  return jsonBody
+	return jsonBody
 }
 
-func parseResponse(response *http.Response) (ChatResponse, error) {
-  // read the response body
-  body, err := io.ReadAll(response.Body)
+func AskQuestion(message string) (*ChatResponse, error) {
+	prompt := []map[string]string{
+		{
+			"role":    "developer",
+			"content": raino.SystemPrompt,
+		},
+		{
+			"role":    "user",
+			"content": message,
+		},
+	}
 
-  if err != nil {
-    fmt.Println(err)
-    return ChatResponse{}, err
-  }
-
-  responseMessage := ChatResponse{}
-  err = json.Unmarshal(body, &responseMessage)
-
-  if err != nil {
-    fmt.Println("Error converting json response body")
-    fmt.Println(err)
-    return ChatResponse{}, err
-  }
-
-  return responseMessage, nil
+	jsonBody := createRequestBody(&ChatRequest{Model: Model, Messages: prompt})
+	return makeRequest(jsonBody)
 }
 
-func SendChat(chatContent string) (ChatResponse, error) {
-  // openai API endpoint
-  var url string = "https://api.openai.com/v1/chat/completions"
-  var apiKey string = env.GetDotenv("OPENAI_API_KEY")
+func AnswerChat(chat []*discordgo.Message, sessionID string) (*ChatResponse, error) {
+	messages := []map[string]string{
+		{
+			"role":    "developer",
+			"content": raino.SystemPrompt,
+		},
+	}
 
-  jsonBody := generateContent(chatContent)
+	for _, message := range chat {
+		newMessage := map[string]string{
+			"role":    "assistant",
+			"content": message.Content,
+		}
 
-  if len(jsonBody) == 0 {
-    fmt.Println("Error generating content")
-    return ChatResponse{}, fmt.Errorf("I couldn't come up with a response... Try again later.")
-  }
+		// if the message is not from raino itself, add user information
+		if message.Author.ID != sessionID {
+			newMessage["role"] = "user"
+			newMessage["username"] = message.Author.Username
+			newMessage["user_id"] = message.Author.ID
+		}
 
-  // generate a new post request
-  req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
+		messages = append(messages, newMessage)
+	}
 
-  if err != nil {
-    fmt.Println("Error creating request to OpenAI API:", err)
-    return ChatResponse{}, fmt.Errorf("I couldn't come up with a response... Try again later.")
-  }
-
-  req.Header.Add("Content-Type", "application/json")
-  req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", apiKey))
-
-  response, err := http.DefaultClient.Do(req)
-
-  if err != nil {
-    fmt.Println("Error sending request to OpenAI API:", err)
-    return ChatResponse{}, fmt.Errorf("My connection failed... Sorry about that.")
-  }
-
-  chatResponse, err := parseResponse(response)
-  if err != nil {
-    fmt.Println("Error parsing response from OpenAI API:", err)
-    return ChatResponse{}, fmt.Errorf("Something went wrong while formatting my response...")
-  }
-
-  return chatResponse, nil
+	jsonBody := createRequestBody(&ChatRequest{Model: Model, Messages: messages})
+	return makeRequest(jsonBody)
 }

@@ -11,9 +11,8 @@ import (
 	"github.com/sakuexe/go-raino/internal/handlers"
 )
 
-
 func createMessage(session *discordgo.Session, message *discordgo.MessageCreate) {
-  // make the message handler asynchronous
+	// make the message handler asynchronous
 	go func() {
 		// Ignore all messages created by the bot itself
 		if message.Author.ID == session.State.User.ID {
@@ -21,16 +20,16 @@ func createMessage(session *discordgo.Session, message *discordgo.MessageCreate)
 		}
 
 		// if the message is hello reply with hello!
-    askPattern, _ := regexp.Compile("([Hh]ey\\s?[Rr]aino)")
+		askPattern, _ := regexp.Compile("([Hh]ey\\s?[Rr]aino)")
 		if askPattern.MatchString(message.Content) {
-      response := askMessageHandler(session, message)
+			response := askMessageHandler(session, message)
 			session.ChannelMessageSend(message.ChannelID, response)
 		}
 
-    rockPattern, _ := regexp.Compile("[Rr]ock")
-    if rockPattern.MatchString(message.Content) {
-      session.MessageReactionAdd(message.ChannelID, message.ID, "🪨")
-    }
+		rockPattern, _ := regexp.Compile("[Rr]ock")
+		if rockPattern.MatchString(message.Content) {
+			session.MessageReactionAdd(message.ChannelID, message.ID, "🪨")
+		}
 	}()
 }
 

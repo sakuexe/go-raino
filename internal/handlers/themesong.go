@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
