@@ -20,7 +20,7 @@ func createMessage(session *discordgo.Session, message *discordgo.MessageCreate)
 		}
 
 		// if the message is hello reply with hello!
-		askPattern, _ := regexp.Compile("([Hh]ey\\s?[Rr]aino)")
+		askPattern, _ := regexp.Compile(`([Hh]ey\s?[Rr]aino)`)
 		if askPattern.MatchString(message.Content) {
 			response := askMessageHandler(session, message)
 			session.ChannelMessageSend(message.ChannelID, response)
@@ -34,7 +34,6 @@ func createMessage(session *discordgo.Session, message *discordgo.MessageCreate)
 }
 
 func main() {
-
 	// invite raino to the server: https://discord.com/oauth2/authorize?client_id=1241964425317978193&permissions=40667002567744&scope=bot
 	discord, err := discordgo.New("Bot " + env.GetDotenv("DISCORD_TOKEN"))
 	if err != nil {

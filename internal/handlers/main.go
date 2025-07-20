@@ -72,9 +72,22 @@ var (
 		},
 
 		{
-      Name:        "themesong",
-      Description: "Plays the theme song of Raino the Rhino.",
-    },
+			Name:        "fingerpori",
+			Description: "Ask Raino to fetch a fingerpori cartoon.",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Name:        "randomize",
+					Description: "The number of the fingerpori comic that you want to get. Leave empty for latest.",
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Required:    false,
+				},
+			},
+		},
+
+		{
+			Name:        "themesong",
+			Description: "Plays the theme song of Raino the Rhino.",
+		},
 	}
 )
 
@@ -111,8 +124,10 @@ func AddCommandHandlers(session *discordgo.Session) {
 			go askHandler(session, interaction, optionMap)
 		case "convert":
 			go convertHandler(session, interaction)
-    case "themesong":
-      go themeSongHandler(session, interaction)
+		case "fingerpori":
+			go fingerporiHandler(session, interaction)
+		case "themesong":
+			go themeSongHandler(session, interaction)
 		}
 	})
 }
